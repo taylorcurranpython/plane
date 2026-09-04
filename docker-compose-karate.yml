@@ -2,6 +2,7 @@
 #
 # Prerequisite:
 #   ./setup.sh    # creates apps/api/.env (and the other env files) from .env.example
+#   # or just:  cp apps/api/.env.example apps/api/.env
 #
 # Usage:
 #   # Run the full suite:
@@ -120,6 +121,8 @@ services:
       <<: *karate-fixtures
       DJANGO_SETTINGS_MODULE: plane.settings.local
       DEBUG: 1
+      # configure_instance refuses to run without one; throwaway value for the test stack only.
+      SECRET_KEY: ${SECRET_KEY:-karate-throwaway-secret-key-not-for-real-deployments}
       POSTGRES_HOST: karate-db
       DATABASE_URL: postgresql://${POSTGRES_USER:-plane}:${POSTGRES_PASSWORD:-plane}@karate-db:5432/${POSTGRES_DB:-plane}
       REDIS_HOST: karate-redis

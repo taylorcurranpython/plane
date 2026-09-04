@@ -21,7 +21,9 @@ The features read like a specification of the API:
 
 ## Running with Docker (recommended)
 
-Prerequisite (once): `./setup.sh` from the repo root to generate `apps/api/.env`.
+Prerequisite (once): `apps/api/.env` must exist — run `./setup.sh` from the repo
+root, or simply `cp apps/api/.env.example apps/api/.env` (the stack overrides
+every host / credential it needs).
 
 ```bash
 # Full suite: boots postgres / valkey / rabbitmq / minio / api, seeds fixtures, runs Karate

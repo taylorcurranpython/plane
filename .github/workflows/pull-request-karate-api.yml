@@ -31,8 +31,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Generate env files
-        run: ./setup.sh
+      - name: Generate API env file
+        run: cp apps/api/.env.example apps/api/.env
 
       - name: Cache Maven repository
         uses: actions/cache@v4
@@ -45,14 +45,14 @@ jobs:
         run: |
           mkdir -p ~/.m2/repository
           docker volume create plane_karate_m2
-          docker run --rm -v plane_karate_m2:/dst -v ~/.m2/repository:/src alpine sh -c 'cp -a /src/. /dst/repository/ 2>/dev/null || mkdir -p /dst/repository'
+          docker run --rm -v plane_karate_m2:/dst -v ~/.m2/repository:/src alpine sh -c 'mkdir -p /dst/repository && cp -a /src/. /dst/repository/'
 
       - name: Run Karate suite
         run: docker compose -f docker-compose-karate.yml up --build --abort-on-container-exit --exit-code-from karate
 
       - name: Copy Maven volume back to the cache
         if: always()
-        run: docker run --rm -v plane_karate_m2:/src -v ~/.m2/repository:/dst alpine sh -c 'cp -a /src/repository/. /dst/'
+        run: docker run --rm -v plane_karate_m2:/src -v ~/.m2/repository:/dst alpine sh -c '[ -d /src/repository ] && cp -a /src/repository/. /dst/ || true'
 
       - name: API logs
         if: failure()
