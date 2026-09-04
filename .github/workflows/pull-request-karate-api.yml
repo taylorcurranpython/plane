@@ -1,0 +1,73 @@
+name: Karate API behaviour tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - "preview"
+    types:
+      - "opened"
+      - "synchronize"
+      - "ready_for_review"
+      - "review_requested"
+      - "reopened"
+    paths:
+      - "apps/api/**"
+      - "docker-compose-karate.yml"
+      - ".github/workflows/pull-request-karate-api.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  karate:
+    name: Karate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
+    env:
+      COMPOSE_PROJECT_NAME: plane
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Generate env files
+        run: ./setup.sh
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: karate-m2-${{ runner.os }}-${{ hashFiles('apps/api/tests/karate/pom.xml') }}
+          restore-keys: karate-m2-${{ runner.os }}-
+
+      - name: Warm the Karate runner's Maven volume from the cache
+        run: |
+          mkdir -p ~/.m2/repository
+          docker volume create plane_karate_m2
+          docker run --rm -v plane_karate_m2:/dst -v ~/.m2/repository:/src alpine sh -c 'cp -a /src/. /dst/repository/ 2>/dev/null || mkdir -p /dst/repository'
+
+      - name: Run Karate suite
+        run: docker compose -f docker-compose-karate.yml up --build --abort-on-container-exit --exit-code-from karate
+
+      - name: Copy Maven volume back to the cache
+        if: always()
+        run: docker run --rm -v plane_karate_m2:/src -v ~/.m2/repository:/dst alpine sh -c 'cp -a /src/repository/. /dst/'
+
+      - name: API logs
+        if: failure()
+        run: docker compose -f docker-compose-karate.yml logs karate-api
+
+      - name: Upload Karate reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: karate-reports
+          path: |
+            apps/api/tests/karate/target/karate-reports
+            apps/api/tests/karate/target/karate.log
+          if-no-files-found: ignore
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose-karate.yml down -v

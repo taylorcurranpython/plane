@@ -1,0 +1,192 @@
+# Docker Compose for running the Karate behaviour test suite against a live API.
+#
+# Prerequisite:
+#   ./setup.sh    # creates apps/api/.env (and the other env files) from .env.example
+#
+# Usage:
+#   # Run the full suite:
+#   docker compose -f docker-compose-karate.yml up --build --abort-on-container-exit --exit-code-from karate
+#
+#   # Run a subset by tag or feature path (args are forwarded to Maven):
+#   docker compose -f docker-compose-karate.yml run --rm karate mvn -q test -Dkarate.options="-t @projects"
+#   docker compose -f docker-compose-karate.yml run --rm karate mvn -q test -Dkarate.options="classpath:plane/work-items"
+#
+#   # Or keep the API up and iterate from the host (API is published on :8000):
+#   docker compose -f docker-compose-karate.yml up -d --build karate-api
+#   (cd apps/api/tests/karate && mvn test)
+#
+#   # Tear down (removes ephemeral volumes and the test network):
+#   docker compose -f docker-compose-karate.yml down -v
+#
+# Notes:
+# - The API container runs migrations, registers the instance, seeds a user /
+#   workspace / API key (tests/karate/fixtures/seed.py), then serves on :8000.
+# - The Karate runner waits for the API health check before starting.
+# - Data dirs are tmpfs so every run begins from a clean state.
+# - Reports land in apps/api/tests/karate/target/karate-reports/.
+# - See apps/api/tests/karate/README.md for the full walkthrough.
+
+x-karate-fixtures: &karate-fixtures
+  KARATE_USER_EMAIL: karate@plane.local
+  KARATE_WORKSPACE_SLUG: karate
+  KARATE_API_KEY: plane_api_karate_local_only_do_not_use_in_prod
+
+services:
+  karate-db:
+    image: postgres:15.7-alpine
+    networks:
+      - karate_env
+    env_file:
+      - ./apps/api/.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-plane}
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-plane} -d ${POSTGRES_DB:-plane}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  karate-redis:
+    image: valkey/valkey:7.2.11-alpine
+    networks:
+      - karate_env
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  karate-mq:
+    image: rabbitmq:3.13.6-management-alpine
+    networks:
+      - karate_env
+    env_file:
+      - ./apps/api/.env
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-plane}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-plane}
+    tmpfs:
+      - /var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  karate-minio:
+    image: minio/minio
+    networks:
+      - karate_env
+    env_file:
+      - ./apps/api/.env
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-access-key}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-secret-key}
+    entrypoint: >
+      /bin/sh -c "
+      mkdir -p /export/${AWS_S3_BUCKET_NAME:-uploads} &&
+      minio server /export --console-address ':9090' &
+      sleep 3 &&
+      mc alias set local http://localhost:9000 ${AWS_ACCESS_KEY_ID:-access-key} ${AWS_SECRET_ACCESS_KEY:-secret-key} &&
+      mc mb local/${AWS_S3_BUCKET_NAME:-uploads} -p || true &&
+      tail -f /dev/null
+      "
+    tmpfs:
+      - /export
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  karate-api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.dev
+      args:
+        DOCKER_BUILDKIT: 1
+    networks:
+      - karate_env
+    env_file:
+      - ./apps/api/.env
+    environment:
+      <<: *karate-fixtures
+      DJANGO_SETTINGS_MODULE: plane.settings.local
+      DEBUG: 1
+      POSTGRES_HOST: karate-db
+      DATABASE_URL: postgresql://${POSTGRES_USER:-plane}:${POSTGRES_PASSWORD:-plane}@karate-db:5432/${POSTGRES_DB:-plane}
+      REDIS_HOST: karate-redis
+      REDIS_URL: redis://karate-redis:6379/
+      RABBITMQ_HOST: karate-mq
+      AWS_S3_ENDPOINT_URL: http://karate-minio:9000
+      USE_MINIO: 1
+      # Generous limit so the suite is never throttled (default is 60/minute).
+      API_KEY_RATE_LIMIT: 10000/minute
+      WEB_URL: http://karate-api:8000
+    ports:
+      - "${KARATE_API_PORT:-8000}:8000"
+    volumes:
+      - ./apps/api:/code
+    working_dir: /code
+    depends_on:
+      karate-db:
+        condition: service_healthy
+      karate-redis:
+        condition: service_healthy
+      karate-mq:
+        condition: service_healthy
+      karate-minio:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        python manage.py wait_for_db
+        python manage.py migrate --noinput
+        python manage.py register_instance karate-$$(hostname)
+        python manage.py configure_instance
+        python manage.py create_bucket
+        python manage.py clear_cache
+        python manage.py shell < tests/karate/fixtures/seed.py
+        mkdir -p plane/static-assets/collected-static
+        exec python manage.py runserver 0.0.0.0:8000
+    healthcheck:
+      # 127.0.0.1, not localhost: that resolves to ::1 first and runserver is IPv4 only.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8000/ >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+  karate:
+    image: maven:3.9-eclipse-temurin-17
+    networks:
+      - karate_env
+    environment:
+      <<: *karate-fixtures
+      KARATE_ENV: docker
+      KARATE_BASE_URL: http://karate-api:8000
+      MAVEN_OPTS: -Dmaven.repo.local=/root/.m2/repository
+    volumes:
+      - ./apps/api/tests/karate:/karate
+      - karate_m2:/root/.m2
+    working_dir: /karate
+    depends_on:
+      karate-api:
+        condition: service_healthy
+    command: ["mvn", "-q", "-B", "test", "-Dkarate.env=docker"]
+
+volumes:
+  karate_m2:
+
+networks:
+  karate_env:
+    driver: bridge
