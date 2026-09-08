@@ -13,15 +13,37 @@ registered via `python manage.py register_instance <machine-signature>`):
     python manage.py shell < /path/to/e2e/fixtures/seed.py
 
 Idempotent: re-running reuses the existing rows and resets the user's password.
-Values can be overridden via the E2E_* environment variables below (e2e/.env).
+Values resolve as: E2E_* shell variables > the dotenv file at E2E_ENV_FILE (default /e2e/.env,
+see docker-compose-e2e.yml) > the defaults below -- the same order playwright.config.ts uses.
 """
 
 import os
 import uuid
+from pathlib import Path
 
 from django.contrib.auth.hashers import make_password
 from plane.db.models import Profile, User, Workspace, WorkspaceMember
 from plane.license.models import Instance, InstanceAdmin
+
+
+def load_env_file(path: Path) -> None:
+    """Minimal dotenv reader (KEY=value, optional quotes, # comments); never overrides the shell."""
+    if not path.is_file():
+        return
+    for raw in path.read_text().splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip().removeprefix("export ").strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+            value = value[1:-1]
+        if key.startswith("E2E_"):
+            os.environ.setdefault(key, value)
+
+
+load_env_file(Path(os.environ.get("E2E_ENV_FILE", "/e2e/.env")))
 
 EMAIL = os.environ.get("E2E_USER_EMAIL", "e2e@plane.local")
 PASSWORD = os.environ.get("E2E_USER_PASSWORD", "e2e-password-1234!")
