@@ -3,6 +3,7 @@ Feature: Labels
 
   Labels are project-scoped tags that can be attached to work items. Names are
   unique within a project and labels can be nested one level under a parent.
+  Colours are stored in canonical lowercase 6-digit hex form (e.g. #ef4444).
 
   Background:
     * configure headers = authHeaders
@@ -19,7 +20,7 @@ Feature: Labels
       {
         id: '#(uuid)',
         name: '#(payload.name)',
-        color: '#(payload.color)',
+        color: '#ef4444',
         description: '#(payload.description)',
         project: '#(project.id)',
         workspace: '#(uuid)',
@@ -41,7 +42,7 @@ Feature: Labels
     When method patch
     Then status 200
     And match response.name == 'defect-' + runId
-    And match response.color == '#F97316'
+    And match response.color == '#f97316'
 
     Given url labelsUrl
     When method get
@@ -102,3 +103,28 @@ Feature: Labels
     When method post
     Then status 400
     And match response.name == '#[1]'
+
+  Scenario Outline: Label colours are normalised to lowercase 6-digit hex
+    Given url labelsUrl
+    And request { name: '#("colour-<slug>-" + runId)', color: '<input>' }
+    When method post
+    Then status 201
+    And match response.color == '<expected>'
+    * def labelId = response.id
+
+    Given url labelsUrl + labelId + '/'
+    When method delete
+    Then status 204
+
+    Examples:
+      | slug  | input   | expected |
+      | upper | #ABCDEF | #abcdef  |
+      | bare  | abcdef  | #abcdef  |
+      | short | #abc    | #aabbcc  |
+
+  Scenario: A label rejects a non-hex colour
+    Given url labelsUrl
+    And request { name: '#("colour-bad-" + runId)', color: 'red' }
+    When method post
+    Then status 400
+    And match response.color == '#[1]'
