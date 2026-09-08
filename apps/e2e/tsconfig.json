@@ -1,0 +1,14 @@
+{
+  "extends": "@plane/typescript-config/base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "noEmit": true,
+    "exactOptionalPropertyTypes": false
+  },
+  "include": ["playwright.config.ts", "support", "tests"],
+  "exclude": ["node_modules", "test-results", "playwright-report"]
+}
