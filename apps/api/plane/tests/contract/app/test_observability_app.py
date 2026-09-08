@@ -7,7 +7,17 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 
-from plane.db.models import Issue, IssueActivity, Project, ProjectMember, State, User, WorkspaceMember
+from plane.db.models import (
+    Cycle,
+    Issue,
+    IssueActivity,
+    Module,
+    Project,
+    ProjectMember,
+    State,
+    User,
+    WorkspaceMember,
+)
 from plane.license.models import Instance, InstanceAdmin
 
 
@@ -54,6 +64,15 @@ def excluded_records(db, workspace, create_user, project_with_issues):
 
     former = User.objects.create(email="former@plane.so", username="former")
     WorkspaceMember.objects.create(workspace=workspace, member=former, role=15, deleted_at=timezone.now())
+
+    archived_project = Project.objects.create(
+        name="Archived Project", identifier="ARC", workspace=workspace, archived_at=timezone.now()
+    )
+    Cycle.objects.create(name="Old cycle", project=archived_project, workspace=workspace, owned_by=create_user)
+    Module.objects.create(name="Old module", project=archived_project, workspace=workspace)
+    Cycle.objects.create(
+        name="Archived cycle", project=project, workspace=workspace, owned_by=create_user, archived_at=timezone.now()
+    )
     return {"archived": archived, "draft": draft, "intake": intake, "former_member": former}
 
 
@@ -102,6 +121,8 @@ class TestWorkspaceObservabilityEndpoint:
         assert response.status_code == status.HTTP_200_OK
         assert response.data["totals"]["issues"] == 3
         assert response.data["totals"]["members"] == 1
+        assert response.data["totals"]["cycles"] == 0
+        assert response.data["totals"]["modules"] == 0
         assert response.data["issues"]["by_state_group"]["started"] == 2
         assert sum(point["count"] for point in response.data["activity"]) == 0
 
@@ -155,6 +176,8 @@ class TestInstanceObservabilityEndpoint:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["totals"]["issues"] == 3
+        assert response.data["totals"]["cycles"] == 0
+        assert response.data["totals"]["modules"] == 0
         assert response.data["top_workspaces"][0]["issues"] == 3
         assert response.data["top_workspaces"][0]["members"] == 1
         assert sum(point["count"] for point in response.data["activity"]) == 0

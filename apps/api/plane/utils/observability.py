@@ -104,8 +104,12 @@ def get_workspace_observability(workspace: Workspace) -> dict:
                 workspace_id=workspace.id, is_active=True, member__is_bot=False
             ).count(),
             "issues": issues.count(),
-            "cycles": Cycle.objects.filter(workspace_id=workspace.id, archived_at__isnull=True).count(),
-            "modules": Module.objects.filter(workspace_id=workspace.id, archived_at__isnull=True).count(),
+            "cycles": Cycle.objects.filter(
+                workspace_id=workspace.id, archived_at__isnull=True, project__archived_at__isnull=True
+            ).count(),
+            "modules": Module.objects.filter(
+                workspace_id=workspace.id, archived_at__isnull=True, project__archived_at__isnull=True
+            ).count(),
             "pages": Page.objects.filter(workspace_id=workspace.id, archived_at__isnull=True).count(),
         },
         "issues": {
@@ -148,8 +152,8 @@ def get_instance_observability(instance) -> dict:
             "workspaces": Workspace.objects.count(),
             "projects": Project.objects.filter(archived_at__isnull=True).count(),
             "issues": issues.count(),
-            "cycles": Cycle.objects.filter(archived_at__isnull=True).count(),
-            "modules": Module.objects.filter(archived_at__isnull=True).count(),
+            "cycles": Cycle.objects.filter(archived_at__isnull=True, project__archived_at__isnull=True).count(),
+            "modules": Module.objects.filter(archived_at__isnull=True, project__archived_at__isnull=True).count(),
             "pages": Page.objects.filter(archived_at__isnull=True).count(),
         },
         "issues": {
