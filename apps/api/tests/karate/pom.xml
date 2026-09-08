@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>so.plane</groupId>
+  <artifactId>plane-api-karate</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Plane API - Karate behaviour tests</name>
+  <description>Black-box behaviour tests for the Plane public REST API (/api/v1) written with Karate.</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>17</maven.compiler.release>
+    <karate.version>1.5.2</karate.version>
+    <maven.surefire.version>3.2.5</maven.surefire.version>
+    <maven.compiler.version>3.13.0</maven.compiler.version>
+    <!-- Overridable from the command line: -Dkarate.env=docker -Dkarate.options="-t @smoke" -->
+    <karate.env>local</karate.env>
+    <karate.options></karate.options>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.karatelabs</groupId>
+      <artifactId>karate-junit5</artifactId>
+      <version>${karate.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </testResource>
+    </testResources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.version}</version>
+        <configuration>
+          <includes>
+            <include>PlaneApiTest.java</include>
+          </includes>
+          <systemPropertyVariables>
+            <karate.env>${karate.env}</karate.env>
+            <karate.options>${karate.options}</karate.options>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
