@@ -15,6 +15,9 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch --no-clean",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "check:lint": "oxlint --max-warnings=38 .",
     "check:types": "tsc --noEmit",
     "check:format": "oxfmt --check .",
@@ -46,6 +49,7 @@
   },
   "devDependencies": {
     "@plane/typescript-config": "workspace:*",
+    "@plane/vitest-config": "workspace:*",
     "@types/chroma-js": "catalog:",
     "@types/hast": "catalog:",
     "@types/lodash-es": "catalog:",
@@ -53,7 +57,9 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/sanitize-html": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
