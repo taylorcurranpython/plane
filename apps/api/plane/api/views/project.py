@@ -37,6 +37,7 @@ from plane.db.models import (
     StateGroup,
     IntakeIssue,
     ProjectPage,
+    IssueView,
 )
 from plane.bgtasks.webhook_task import model_activity, webhook_activity
 from plane.utils.exception_logger import log_exception
@@ -708,6 +709,7 @@ ALLOWED_PROJECT_SUMMARY_FIELDS = [
     "issues",
     "intakes",
     "pages",
+    "views",
 ]
 
 
@@ -793,6 +795,12 @@ class ProjectSummaryAPIEndpoint(BaseAPIView):
             ),
             "pages": lambda: (
                 ProjectPage.objects.filter(project_id=OuterRef("pk"))
+                .values("project_id")
+                .annotate(count=Count("*"))
+                .values("count")
+            ),
+            "views": lambda: (
+                IssueView.objects.filter(project_id=OuterRef("pk"), archived_at__isnull=True)
                 .values("project_id")
                 .annotate(count=Count("*"))
                 .values("count")
