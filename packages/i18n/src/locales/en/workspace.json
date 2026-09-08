@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Observability",
+    "page_label": "{workspace} - Observability",
+    "description": "Usage, health, and activity across this workspace.",
+    "refresh": "Refresh",
+    "error": "Could not load workspace metrics.",
+    "totals": "Totals",
+    "projects": "Projects",
+    "members": "Members",
+    "work_items": "Work items",
+    "cycles": "Cycles",
+    "modules": "Modules",
+    "pages": "Pages",
+    "overdue": "Overdue",
+    "overdue_hint": "Open work items past their due date",
+    "created_last_7_days": "Created (7d)",
+    "completed_last_7_days": "Completed (7d)",
+    "by_state": "Work items by state",
+    "by_priority": "Work items by priority",
+    "activity": "Work item activity",
+    "activity_summary": "{count} events in {days} days",
+    "total": "{count} total",
+    "footer": "Generated {date} · counts exclude archived, draft, and intake work items."
+  },
   "workspace_analytics": {
     "label": "Analytics",
     "page_label": "{workspace} - Analytics",
