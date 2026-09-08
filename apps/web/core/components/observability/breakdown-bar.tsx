@@ -33,16 +33,16 @@ export function BreakdownBar(props: TBreakdownBarProps) {
       </div>
       <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-layer-3" role="img" aria-label={title}>
         {total > 0 &&
-          segments
-            .filter((segment) => segment.value > 0)
-            .map((segment) => (
+          segments.map((segment) =>
+            segment.value > 0 ? (
               <div
                 key={segment.key}
                 title={`${segment.label}: ${segment.value}`}
                 className="h-full"
                 style={{ width: `${(segment.value / total) * 100}%`, backgroundColor: segment.color }}
               />
-            ))}
+            ) : null
+          )}
       </div>
       <ul className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
         {segments.map((segment) => (
