@@ -28,22 +28,24 @@ export const SignOutConfirmationModal = observer(function SignOutConfirmationMod
   const { t } = useTranslation();
 
   const handleClose = () => {
-    setIsSigningOut(false);
+    if (isSigningOut) return;
     onClose();
   };
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
-    await signOut()
-      .then(() => handleClose())
-      .catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: t("auth.sign_out.toast.error.title"),
-          message: t("auth.sign_out.toast.error.message"),
-        });
-        setIsSigningOut(false);
+    try {
+      await signOut();
+      setIsSigningOut(false);
+      onClose();
+    } catch {
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: t("auth.sign_out.toast.error.title"),
+        message: t("auth.sign_out.toast.error.message"),
       });
+      setIsSigningOut(false);
+    }
   };
 
   return (
