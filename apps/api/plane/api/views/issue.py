@@ -899,9 +899,23 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
             .order_by(self.kwargs.get("order_by", "-created_at"))
         )
 
+    def name_conflict_errors(self, slug, project_id, name, exclude_pk=None):
+        """Validation errors for a label name that already exists in the project, ignoring case."""
+        if not name:
+            return None
+        labels = Label.objects.filter(workspace__slug=slug, project_id=project_id, name__iexact=name.strip())
+        if exclude_pk is not None:
+            labels = labels.exclude(pk=exclude_pk)
+        if labels.exists():
+            return {"name": ["A label with this name already exists in this project."]}
+        return None
+
     @label_docs(
         operation_id="create_label",
-        description="Create a new label in the specified project with name, color, and description.",
+        description=(
+            "Create a new label in the specified project with name, color, and description. "
+            "Names are unique within a project, ignoring case."
+        ),
         request=OpenApiRequest(
             request=LabelCreateUpdateSerializer,
             examples=[LABEL_CREATE_EXAMPLE],
@@ -948,6 +962,10 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
                         },
                         status=status.HTTP_409_CONFLICT,
                     )
+
+                errors = self.name_conflict_errors(slug, project_id, serializer.validated_data.get("name"))
+                if errors:
+                    return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
                 serializer.save(project_id=project_id)
                 label = Label.objects.get(pk=serializer.instance.id)
@@ -1082,6 +1100,9 @@ class LabelDetailAPIEndpoint(LabelListCreateAPIEndpoint):
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
+            errors = self.name_conflict_errors(slug, project_id, serializer.validated_data.get("name"), exclude_pk=pk)
+            if errors:
+                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             label = Label.objects.get(pk=serializer.instance.id)
             serializer = LabelSerializer(label)

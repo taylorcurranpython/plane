@@ -133,6 +133,17 @@ class TestLabelListCreateAPIEndpoint:
         assert "same external id" in response.data["error"]
 
     @pytest.mark.django_db
+    def test_create_label_duplicate_name_ignores_case(self, api_key_client, workspace, project, create_label):
+        """Test that label names are unique within a project regardless of case"""
+        url = self.get_label_url(workspace.slug, project.id)
+
+        response = api_key_client.post(url, {"name": "existing label", "color": "#FF5733"}, format="json")
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "name" in response.data
+        assert Label.objects.filter(project=project).count() == 1
+
+    @pytest.mark.django_db
     def test_list_labels_success(self, api_key_client, workspace, project, create_label):
         """Test successful label listing"""
         url = self.get_label_url(workspace.slug, project.id)
