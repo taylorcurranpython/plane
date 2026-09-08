@@ -70,7 +70,7 @@ class TestLabelListCreateAPIEndpoint:
 
         created_label = Label.objects.first()
         assert created_label.name == label_data["name"]
-        assert created_label.color == label_data["color"]
+        assert created_label.color == label_data["color"].lower()
         assert created_label.description == label_data["description"]
         assert created_label.project == project
 
