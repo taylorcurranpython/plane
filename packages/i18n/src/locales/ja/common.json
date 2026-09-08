@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "ブロッカーに先手を打つ",
   "stay_ahead_of_blockers_description": "プロジェクト間の課題を特定し、他のビューでは明らかでないサイクル間の依存関係を確認します。",
   "analytics": "アナリティクス",
+  "observability": "オブザーバビリティ",
   "workspace_invites": "ワークスペースの招待",
   "enter_god_mode": "ゴッドモードに入る",
   "workspace_logo": "ワークスペースのロゴ",

@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "Fique à frente dos bloqueios.",
   "stay_ahead_of_blockers_description": "Identifique desafios de um projeto para outro e veja as dependências entre ciclos que não são óbvias em nenhuma outra visualização.",
   "analytics": "Análises",
+  "observability": "Observabilidade",
   "workspace_invites": "Convites para o espaço de trabalho",
   "enter_god_mode": "Entrar no God Mode",
   "workspace_logo": "Logo do espaço de trabalho",

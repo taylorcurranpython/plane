@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "Anticipa gli ostacoli.",
   "stay_ahead_of_blockers_description": "Individua le sfide tra i progetti e visualizza le dipendenze inter-cicliche non evidenti in altre viste.",
   "analytics": "Analisi",
+  "observability": "Osservabilità",
   "workspace_invites": "Inviti allo spazio di lavoro",
   "enter_god_mode": "Entra in modalità dio",
   "workspace_logo": "Logo dello spazio di lavoro",

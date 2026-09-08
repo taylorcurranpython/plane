@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "Đi trước các yếu tố chặn.",
   "stay_ahead_of_blockers_description": "Phát hiện thách thức từ dự án này sang dự án khác và xem các phụ thuộc giữa các chu kỳ không dễ thấy từ các chế độ xem khác.",
   "analytics": "Phân tích",
+  "observability": "Khả năng quan sát",
   "workspace_invites": "Lời mời không gian làm việc",
   "enter_god_mode": "Vào chế độ quản trị viên",
   "workspace_logo": "Logo không gian làm việc",

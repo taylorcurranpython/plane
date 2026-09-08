@@ -4,13 +4,20 @@
  * See the LICENSE file for details.
  */
 
-import { BrainCog } from "lucide-react";
+import { Activity, BrainCog } from "lucide-react";
 // plane imports
 import { ImageOutline, LockOutline, MailOutline, SettingsOutline, WorkspaceOutline } from "@makeplane/propel/icons";
 // types
 import type { TSidebarMenuItem } from "./types";
 
-export type TCoreSidebarMenuKey = "general" | "email" | "workspace" | "authentication" | "ai" | "image";
+export type TCoreSidebarMenuKey =
+  | "general"
+  | "email"
+  | "workspace"
+  | "authentication"
+  | "ai"
+  | "image"
+  | "observability";
 
 export const coreSidebarMenuLinks: Record<TCoreSidebarMenuKey, TSidebarMenuItem> = {
   general: {
@@ -48,5 +55,11 @@ export const coreSidebarMenuLinks: Record<TCoreSidebarMenuKey, TSidebarMenuItem>
     name: "Images in Plane",
     description: "Allow third-party image libraries.",
     href: `/image/`,
+  },
+  observability: {
+    Icon: Activity,
+    name: "Observability",
+    description: "System health, usage and telemetry.",
+    href: `/observability/`,
   },
 };

@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "Stay ahead of blockers.",
   "stay_ahead_of_blockers_description": "Spot challenges from one project to another and see inter-cycle dependencies that aren't obvious from any other view.",
   "analytics": "Analytics",
+  "observability": "Observability",
   "workspace_invites": "Workspace invites",
   "enter_god_mode": "Enter god mode",
   "workspace_logo": "Workspace logo",
