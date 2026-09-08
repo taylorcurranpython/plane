@@ -1,0 +1,11 @@
+{
+  "$schema": "https://v2-8-12.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "dependsOn": [],
+      "cache": false,
+      "env": ["E2E_*"]
+    }
+  }
+}

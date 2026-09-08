@@ -1,0 +1,27 @@
+{
+  "name": "@plane/e2e",
+  "version": "1.4.2",
+  "private": true,
+  "description": "Playwright end-to-end tests for the Plane web app",
+  "license": "AGPL-3.0",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "install:browsers": "playwright install chromium",
+    "check:lint": "oxlint .",
+    "check:types": "tsc --noEmit",
+    "check:format": "oxfmt --check .",
+    "fix:lint": "oxlint --fix .",
+    "fix:format": "oxfmt .",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf playwright-report && rm -rf test-results"
+  },
+  "devDependencies": {
+    "@plane/typescript-config": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}
