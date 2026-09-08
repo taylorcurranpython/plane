@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Obserwowalność",
+    "page_label": "{workspace} - Obserwowalność",
+    "description": "Użycie, stan i aktywność w tej przestrzeni roboczej.",
+    "refresh": "Odśwież",
+    "error": "Nie udało się wczytać metryk przestrzeni roboczej.",
+    "totals": "Podsumowanie",
+    "projects": "Projekty",
+    "members": "Członkowie",
+    "work_items": "Elementy pracy",
+    "cycles": "Cykle",
+    "modules": "Moduły",
+    "pages": "Strony",
+    "overdue": "Po terminie",
+    "overdue_hint": "Otwarte elementy pracy po terminie realizacji",
+    "created_last_7_days": "Utworzone (7 dni)",
+    "completed_last_7_days": "Ukończone (7 dni)",
+    "by_state": "Elementy pracy według stanu",
+    "by_priority": "Elementy pracy według priorytetu",
+    "activity": "Aktywność elementów pracy",
+    "activity_summary": "{count} zdarzeń w ciągu {days} dni",
+    "total": "łącznie {count}",
+    "footer": "Wygenerowano {date} · liczby nie obejmują zarchiwizowanych elementów pracy, wersji roboczych ani elementów Intake."
+  },
   "workspace_analytics": {
     "label": "Analizy",
     "page_label": "{workspace} - Analizy",

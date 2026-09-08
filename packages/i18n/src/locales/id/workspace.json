@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Observabilitas",
+    "page_label": "{workspace} - Observabilitas",
+    "description": "Penggunaan, kondisi, dan aktivitas di ruang kerja ini.",
+    "refresh": "Segarkan",
+    "error": "Tidak dapat memuat metrik ruang kerja.",
+    "totals": "Total",
+    "projects": "Proyek",
+    "members": "Anggota",
+    "work_items": "Item kerja",
+    "cycles": "Siklus",
+    "modules": "Modul",
+    "pages": "Halaman",
+    "overdue": "Terlambat",
+    "overdue_hint": "Item kerja terbuka yang telah melewati tenggat waktu",
+    "created_last_7_days": "Dibuat (7 hari)",
+    "completed_last_7_days": "Selesai (7 hari)",
+    "by_state": "Item kerja berdasarkan status",
+    "by_priority": "Item kerja berdasarkan prioritas",
+    "activity": "Aktivitas item kerja",
+    "activity_summary": "{count} peristiwa dalam {days} hari",
+    "total": "{count} total",
+    "footer": "Dibuat {date} · jumlah tidak termasuk item kerja yang diarsipkan, draf, dan Intake."
+  },
   "workspace_analytics": {
     "label": "Analitik",
     "page_label": "{workspace} - Analitik",

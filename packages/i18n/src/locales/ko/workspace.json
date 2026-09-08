@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "관측 가능성",
+    "page_label": "{workspace} - 관측 가능성",
+    "description": "이 워크스페이스의 사용량, 상태 및 활동입니다.",
+    "refresh": "새로 고침",
+    "error": "워크스페이스 지표를 불러올 수 없습니다.",
+    "totals": "합계",
+    "projects": "프로젝트",
+    "members": "멤버",
+    "work_items": "작업 항목",
+    "cycles": "사이클",
+    "modules": "모듈",
+    "pages": "페이지",
+    "overdue": "기한 초과",
+    "overdue_hint": "마감일이 지난 미완료 작업 항목",
+    "created_last_7_days": "생성됨(7일)",
+    "completed_last_7_days": "완료됨(7일)",
+    "by_state": "상태별 작업 항목",
+    "by_priority": "우선순위별 작업 항목",
+    "activity": "작업 항목 활동",
+    "activity_summary": "{days}일 동안 {count}건의 이벤트",
+    "total": "총 {count}",
+    "footer": "{date}에 생성됨 · 보관됨, 초안, Intake 작업 항목은 집계에서 제외됩니다."
+  },
   "workspace_analytics": {
     "label": "분석",
     "page_label": "{workspace} - 분석",

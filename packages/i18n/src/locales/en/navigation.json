@@ -17,6 +17,7 @@
     "workspace": "Workspace",
     "views": "Views",
     "analytics": "Analytics",
+    "observability": "Observability",
     "work_items": "Work items",
     "cycles": "Cycles",
     "modules": "Modules",

@@ -36,6 +36,7 @@ from plane.app.views import (
     WorkspaceHomePreferenceViewSet,
     WorkspaceStickyViewSet,
     WorkspaceUserPreferenceViewSet,
+    WorkspaceObservabilityEndpoint,
 )
 
 
@@ -256,5 +257,11 @@ urlpatterns = [
         "workspaces/<str:slug>/sidebar-preferences/",
         WorkspaceUserPreferenceViewSet.as_view(),
         name="workspace-user-preference",
+    ),
+    # Observability
+    path(
+        "workspaces/<str:slug>/observability/",
+        WorkspaceObservabilityEndpoint.as_view(),
+        name="workspace-observability",
     ),
 ]

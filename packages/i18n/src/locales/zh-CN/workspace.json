@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "可观测性",
+    "page_label": "{workspace} - 可观测性",
+    "description": "此工作区的使用情况、健康状况和活动。",
+    "refresh": "刷新",
+    "error": "无法加载工作区指标。",
+    "totals": "总计",
+    "projects": "项目",
+    "members": "成员",
+    "work_items": "工作项",
+    "cycles": "周期",
+    "modules": "模块",
+    "pages": "页面",
+    "overdue": "已逾期",
+    "overdue_hint": "已超过截止日期的未完成工作项",
+    "created_last_7_days": "已创建（7 天）",
+    "completed_last_7_days": "已完成（7 天）",
+    "by_state": "按状态划分的工作项",
+    "by_priority": "按优先级划分的工作项",
+    "activity": "工作项活动",
+    "activity_summary": "{days} 天内 {count} 个事件",
+    "total": "共 {count}",
+    "footer": "生成于 {date} · 统计不包含已归档、草稿和 Intake 工作项。"
+  },
   "workspace_analytics": {
     "label": "分析",
     "page_label": "{workspace} - 分析",

@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Osservabilità",
+    "page_label": "{workspace} - Osservabilità",
+    "description": "Utilizzo, stato e attività in questo spazio di lavoro.",
+    "refresh": "Aggiorna",
+    "error": "Impossibile caricare le metriche dello spazio di lavoro.",
+    "totals": "Totali",
+    "projects": "Progetti",
+    "members": "Membri",
+    "work_items": "Elementi di lavoro",
+    "cycles": "Cicli",
+    "modules": "Moduli",
+    "pages": "Pagine",
+    "overdue": "In ritardo",
+    "overdue_hint": "Elementi di lavoro aperti oltre la data di scadenza",
+    "created_last_7_days": "Creati (7 gg)",
+    "completed_last_7_days": "Completati (7 gg)",
+    "by_state": "Elementi di lavoro per stato",
+    "by_priority": "Elementi di lavoro per priorità",
+    "activity": "Attività degli elementi di lavoro",
+    "activity_summary": "{count} eventi in {days} giorni",
+    "total": "{count} in totale",
+    "footer": "Generato il {date} · i conteggi escludono elementi di lavoro archiviati, bozze e Intake."
+  },
   "workspace_analytics": {
     "label": "Analisi",
     "page_label": "{workspace} - Analisi",

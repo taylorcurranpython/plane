@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Gözlemlenebilirlik",
+    "page_label": "{workspace} - Gözlemlenebilirlik",
+    "description": "Bu çalışma alanındaki kullanım, durum ve etkinlik.",
+    "refresh": "Yenile",
+    "error": "Çalışma alanı metrikleri yüklenemedi.",
+    "totals": "Toplamlar",
+    "projects": "Projeler",
+    "members": "Üyeler",
+    "work_items": "İş öğeleri",
+    "cycles": "Döngüler",
+    "modules": "Modüller",
+    "pages": "Sayfalar",
+    "overdue": "Gecikmiş",
+    "overdue_hint": "Son tarihi geçmiş açık iş öğeleri",
+    "created_last_7_days": "Oluşturulan (7 gün)",
+    "completed_last_7_days": "Tamamlanan (7 gün)",
+    "by_state": "Duruma göre iş öğeleri",
+    "by_priority": "Önceliğe göre iş öğeleri",
+    "activity": "İş öğesi etkinliği",
+    "activity_summary": "{days} günde {count} etkinlik",
+    "total": "toplam {count}",
+    "footer": "{date} tarihinde oluşturuldu · sayılara arşivlenmiş, taslak ve Intake iş öğeleri dahil değildir."
+  },
   "workspace_analytics": {
     "label": "Analitik",
     "page_label": "{workspace} - Analitik",
