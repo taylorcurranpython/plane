@@ -899,11 +899,18 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
             .order_by(self.kwargs.get("order_by", "-created_at"))
         )
 
-    def name_conflict_errors(self, slug, project_id, name, exclude_pk=None):
-        """Validation errors for a label name that already exists in the project, ignoring case."""
+    def name_conflict_errors(self, slug, project_id, name, exclude_pk=None, include_exact=True):
+        """Validation errors for a label name that already exists in the project, ignoring case.
+
+        With ``include_exact=False`` only case-variant matches are reported, so an exact duplicate
+        can still be handled by the database unique constraint (409 ``{error, id}``).
+        """
         if not name:
             return None
-        labels = Label.objects.filter(workspace__slug=slug, project_id=project_id, name__iexact=name.strip())
+        name = name.strip()
+        labels = Label.objects.filter(workspace__slug=slug, project_id=project_id, name__iexact=name)
+        if not include_exact:
+            labels = labels.exclude(name=name)
         if exclude_pk is not None:
             labels = labels.exclude(pk=exclude_pk)
         if labels.exists():
@@ -963,7 +970,9 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
                         status=status.HTTP_409_CONFLICT,
                     )
 
-                errors = self.name_conflict_errors(slug, project_id, serializer.validated_data.get("name"))
+                errors = self.name_conflict_errors(
+                    slug, project_id, serializer.validated_data.get("name"), include_exact=False
+                )
                 if errors:
                     return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 

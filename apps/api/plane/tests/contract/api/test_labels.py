@@ -144,6 +144,17 @@ class TestLabelListCreateAPIEndpoint:
         assert Label.objects.filter(project=project).count() == 1
 
     @pytest.mark.django_db
+    def test_create_label_exact_duplicate_name_conflict(self, api_key_client, workspace, project, create_label):
+        """Test that an exact duplicate label name still returns 409 with the existing label id"""
+        url = self.get_label_url(workspace.slug, project.id)
+
+        response = api_key_client.post(url, {"name": "Existing Label", "color": "#FF5733"}, format="json")
+
+        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.data["id"] == str(create_label.id)
+        assert Label.objects.filter(project=project).count() == 1
+
+    @pytest.mark.django_db
     def test_list_labels_success(self, api_key_client, workspace, project, create_label):
         """Test successful label listing"""
         url = self.get_label_url(workspace.slug, project.id)
