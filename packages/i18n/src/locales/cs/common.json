@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "Předvídejte překážky.",
   "stay_ahead_of_blockers_description": "Identifikujte problémy mezi projekty a zjistěte závislosti mezi cykly, které nejsou z jiných pohledů zřejmé.",
   "analytics": "Analytika",
+  "observability": "Observabilita",
   "workspace_invites": "Pozvánky do pracovního prostoru",
   "enter_god_mode": "Vstoupit do režimu boha",
   "workspace_logo": "Logo pracovního prostoru",

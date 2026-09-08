@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "Erkennen Sie frühzeitig Blocker.",
   "stay_ahead_of_blockers_description": "Identifizieren Sie projektübergreifende Probleme und erkennen Sie Abhängigkeiten zwischen Zyklen, die sonst nicht offensichtlich wären.",
   "analytics": "Analysen",
+  "observability": "Observability",
   "workspace_invites": "Einladungen zum Arbeitsbereich",
   "enter_god_mode": "God-Mode betreten",
   "workspace_logo": "Arbeitsbereichslogo",

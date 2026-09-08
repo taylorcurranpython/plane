@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "Engellerin önüne geçin",
   "stay_ahead_of_blockers_description": "Projeler arası zorlukları ve diğer görünümlerde belirgin olmayan döngü bağımlılıklarını tespit edin.",
   "analytics": "Analitik",
+  "observability": "Gözlemlenebilirlik",
   "workspace_invites": "Çalışma Alanı Davetleri",
   "enter_god_mode": "Yönetici Moduna Geç",
   "workspace_logo": "Çalışma Alanı Logosu",

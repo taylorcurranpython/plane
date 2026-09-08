@@ -137,6 +137,7 @@
   "stay_ahead_of_blockers": "提前预防阻塞。",
   "stay_ahead_of_blockers_description": "发现从一个项目到另一个项目的挑战，并查看从其他视图中不易发现的周期间依赖关系。",
   "analytics": "分析",
+  "observability": "可观测性",
   "workspace_invites": "工作区邀请",
   "enter_god_mode": "进入管理员模式",
   "workspace_logo": "工作区标志",
