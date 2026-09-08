@@ -14,8 +14,8 @@
 #   onboarded user / workspace / instance admin (e2e/fixtures/seed.py), then serves on :8000.
 # - WEB_URL points at the Playwright web server so post-login redirects land on the web app.
 # - Data dirs are tmpfs so every run begins from a clean state.
-# - E2E_* credentials are read from e2e/.env (optional) so the seed and Playwright share one
-#   source; without it both fall back to the same defaults (see e2e/.env.example).
+# - E2E_* credentials come from the shell, then e2e/.env (optional), then built-in defaults --
+#   the same order Playwright uses -- so the seed and the specs always agree (see e2e/.env.example).
 
 services:
   e2e-db:
@@ -102,8 +102,6 @@ services:
       - e2e_env
     env_file:
       - ./apps/api/.env
-      - path: ./e2e/.env
-        required: false
     environment:
       DJANGO_SETTINGS_MODULE: plane.settings.local
       DEBUG: 1
@@ -118,11 +116,16 @@ services:
       USE_MINIO: 1
       WEB_URL: ${PLAYWRIGHT_BASE_URL:-http://localhost:3000}
       CORS_ALLOWED_ORIGINS: ${PLAYWRIGHT_BASE_URL:-http://localhost:3000}
+      # Passed through from the shell only when set there; e2e/.env fills the rest (see entrypoint).
+      E2E_USER_EMAIL:
+      E2E_USER_PASSWORD:
+      E2E_WORKSPACE_SLUG:
+      E2E_WORKSPACE_NAME:
     ports:
       - "${E2E_API_PORT:-8000}:8000"
     volumes:
       - ./apps/api:/code
-      - ./e2e/fixtures/seed.py:/e2e-seed.py:ro
+      - ./e2e:/e2e:ro
     working_dir: /code
     depends_on:
       e2e-db:
@@ -138,13 +141,19 @@ services:
       - -c
       - |
         set -e
+        # shell > e2e/.env > seed defaults, same precedence as dotenv in playwright.config.ts
+        if [ -f /e2e/.env ]; then
+          while IFS='=' read -r key value; do
+            case "$$key" in E2E_*) [ -n "$$(printenv "$$key")" ] || export "$$key=$$value";; esac
+          done < /e2e/.env
+        fi
         python manage.py wait_for_db
         python manage.py migrate --noinput
         python manage.py register_instance e2e-$$(hostname)
         python manage.py configure_instance
         python manage.py create_bucket
         python manage.py clear_cache
-        python manage.py shell < /e2e-seed.py
+        python manage.py shell < /e2e/fixtures/seed.py
         mkdir -p plane/static-assets/collected-static
         exec python manage.py runserver 0.0.0.0:8000
     healthcheck:

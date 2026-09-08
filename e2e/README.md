@@ -34,8 +34,8 @@ refactoring those components — Playwright depends on them.
 2. Start the backend stack. `docker-compose-e2e.yml` boots Postgres/Valkey/RabbitMQ/MinIO and an
    API container that migrates, registers + configures the instance and runs `e2e/fixtures/seed.py`
    (creating `e2e@plane.local` / `e2e-password-1234!` with workspace `e2e`), then serves on `:8000`.
-   The API container also loads `e2e/.env` (if present), so any `E2E_*` overrides you set there are
-   used by both the seed and Playwright:
+   `E2E_*` overrides are resolved the same way by the seed and by Playwright: shell exports win, then
+   `e2e/.env` (if present), then the built-in defaults.
 
    ```sh
    docker compose -f docker-compose-e2e.yml up -d --build --wait
