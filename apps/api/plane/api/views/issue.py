@@ -899,9 +899,30 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
             .order_by(self.kwargs.get("order_by", "-created_at"))
         )
 
+    def name_conflict_errors(self, slug, project_id, name, exclude_pk=None, include_exact=True):
+        """Validation errors for a label name that already exists in the project, ignoring case.
+
+        With ``include_exact=False`` only case-variant matches are reported, so an exact duplicate
+        can still be handled by the database unique constraint (409 ``{error, id}``).
+        """
+        if not name:
+            return None
+        name = name.strip()
+        labels = Label.objects.filter(workspace__slug=slug, project_id=project_id, name__iexact=name)
+        if not include_exact:
+            labels = labels.exclude(name=name)
+        if exclude_pk is not None:
+            labels = labels.exclude(pk=exclude_pk)
+        if labels.exists():
+            return {"name": ["A label with this name already exists in this project."]}
+        return None
+
     @label_docs(
         operation_id="create_label",
-        description="Create a new label in the specified project with name, color, and description.",
+        description=(
+            "Create a new label in the specified project with name, color, and description. "
+            "Names are unique within a project, ignoring case."
+        ),
         request=OpenApiRequest(
             request=LabelCreateUpdateSerializer,
             examples=[LABEL_CREATE_EXAMPLE],
@@ -949,6 +970,12 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
                         status=status.HTTP_409_CONFLICT,
                     )
 
+                errors = self.name_conflict_errors(
+                    slug, project_id, serializer.validated_data.get("name"), include_exact=False
+                )
+                if errors:
+                    return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
                 serializer.save(project_id=project_id)
                 label = Label.objects.get(pk=serializer.instance.id)
                 serializer = LabelSerializer(label)
@@ -958,12 +985,12 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
             label = Label.objects.filter(
                 workspace__slug=slug,
                 project_id=project_id,
-                name=request.data.get("name"),
+                name=serializer.validated_data.get("name"),
             ).first()
             return Response(
                 {
                     "error": "Label with the same name already exists in the project",
-                    "id": str(label.id),
+                    "id": str(label.id) if label else None,
                 },
                 status=status.HTTP_409_CONFLICT,
             )
@@ -1082,6 +1109,9 @@ class LabelDetailAPIEndpoint(LabelListCreateAPIEndpoint):
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
+            errors = self.name_conflict_errors(slug, project_id, serializer.validated_data.get("name"), exclude_pk=pk)
+            if errors:
+                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             label = Label.objects.get(pk=serializer.instance.id)
             serializer = LabelSerializer(label)
