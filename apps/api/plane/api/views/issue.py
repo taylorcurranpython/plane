@@ -985,7 +985,7 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
             label = Label.objects.filter(
                 workspace__slug=slug,
                 project_id=project_id,
-                name=str(request.data.get("name") or "").strip(),
+                name=serializer.validated_data.get("name"),
             ).first()
             return Response(
                 {
