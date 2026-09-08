@@ -985,12 +985,12 @@ class LabelListCreateAPIEndpoint(BaseAPIView):
             label = Label.objects.filter(
                 workspace__slug=slug,
                 project_id=project_id,
-                name=request.data.get("name"),
+                name=str(request.data.get("name") or "").strip(),
             ).first()
             return Response(
                 {
                     "error": "Label with the same name already exists in the project",
-                    "id": str(label.id),
+                    "id": str(label.id) if label else None,
                 },
                 status=status.HTTP_409_CONFLICT,
             )
