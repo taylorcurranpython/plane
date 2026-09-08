@@ -8,7 +8,9 @@ from uuid import uuid4
 import pytest
 from rest_framework import status
 
-from plane.db.models import Project, ProjectMember, State, User, WorkspaceMember
+from django.utils import timezone
+
+from plane.db.models import IssueView, Project, ProjectMember, State, User, WorkspaceMember
 
 
 @pytest.fixture
@@ -259,3 +261,44 @@ class TestProjectListCreateAPIEndpoint:
         # The dispatch was attempted but its failure was swallowed by
         # transaction.on_commit(robust=True).
         mocked_activity.delay.assert_called_once()
+
+
+@pytest.mark.contract
+class TestProjectSummaryAPIEndpoint:
+    """Contract tests for GET /api/v1/workspaces/{slug}/projects/{project_id}/summary/."""
+
+    def get_url(self, workspace_slug, project_id):
+        return f"/api/v1/workspaces/{workspace_slug}/projects/{project_id}/summary/"
+
+    @pytest.fixture
+    def project(self, workspace, create_user):
+        project = Project.objects.create(
+            name="Summary Project",
+            identifier="SUM",
+            workspace=workspace,
+            created_by=create_user,
+        )
+        ProjectMember.objects.create(project=project, member=create_user, role=20)
+        return project
+
+    @pytest.mark.django_db
+    def test_summary_counts_active_views(self, api_key_client, workspace, create_user, project):
+        """Archived views are excluded; workspace-level views (no project) are not counted."""
+        IssueView.objects.create(name="Open bugs", project=project, owned_by=create_user)
+        IssueView.objects.create(name="My items", project=project, owned_by=create_user)
+        IssueView.objects.create(name="Old view", project=project, owned_by=create_user, archived_at=timezone.now())
+        IssueView.objects.create(name="Workspace view", workspace=workspace, owned_by=create_user)
+
+        response = api_key_client.get(self.get_url(workspace.slug, project.id))
+
+        assert response.status_code == status.HTTP_200_OK, f"Got {response.status_code}: {response.data!r}"
+        assert response.data["counts"]["views"] == 2
+
+    @pytest.mark.django_db
+    def test_summary_fields_filter_includes_views(self, api_key_client, workspace, create_user, project):
+        IssueView.objects.create(name="Open bugs", project=project, owned_by=create_user)
+
+        response = api_key_client.get(self.get_url(workspace.slug, project.id), {"fields": "views,members"})
+
+        assert response.status_code == status.HTTP_200_OK, f"Got {response.status_code}: {response.data!r}"
+        assert response.data["counts"] == {"views": 1, "members": 1}
