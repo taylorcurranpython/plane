@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - e2e
   - "!apps/api"
   - "!apps/proxy"
 
@@ -244,6 +245,8 @@ overrides:
   # Express 5's router needs path-to-regexp 8; the pin above would otherwise reach it
   # and break route matching at startup with `pathRegexp.match is not a function`.
   "router>path-to-regexp": "^8.4.2"
+  # `serve` (apps/web preview/start) needs path-to-regexp 3 for its SPA rewrites.
+  "serve-handler>path-to-regexp": "3.3.0"
   defu: 6.1.5
   postcss: 8.5.25
   "postcss-selector-parser@>=7.1.0 <7.1.3": "7.1.3"

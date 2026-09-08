@@ -75,8 +75,10 @@ export const AuthEmailForm = observer(function AuthEmailForm(props: TAuthEmailFo
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("auth.common.email.placeholder")}
               autoComplete="off"
+              // oxlint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               ref={inputRef}
+              data-testid="auth-email-input"
             />
             {email.length > 0 && (
               <button
@@ -101,7 +103,14 @@ export const AuthEmailForm = observer(function AuthEmailForm(props: TAuthEmailFo
           </p>
         )}
       </div>
-      <Button type="submit" variant="primary" className="w-full" size="xl" disabled={isButtonDisabled}>
+      <Button
+        type="submit"
+        variant="primary"
+        className="w-full"
+        size="xl"
+        disabled={isButtonDisabled}
+        data-testid="auth-continue-button"
+      >
         {isSubmitting ? <Spinner height="20px" width="20px" /> : t("common.continue")}
       </Button>
     </form>

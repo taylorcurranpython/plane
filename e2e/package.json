@@ -1,0 +1,26 @@
+{
+  "name": "e2e",
+  "version": "1.4.2",
+  "private": true,
+  "license": "AGPL-3.0",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:e2e": "PLAYWRIGHT_WEB_SERVER_COMMAND='pnpm --filter=web start' playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "install:browsers": "playwright install --with-deps chromium",
+    "check:lint": "oxlint .",
+    "check:format": "oxfmt --check .",
+    "check:types": "tsc --noEmit",
+    "fix:lint": "oxlint --fix .",
+    "fix:format": "oxfmt ."
+  },
+  "devDependencies": {
+    "@plane/typescript-config": "workspace:*",
+    "@playwright/test": "1.62.1",
+    "@types/node": "catalog:",
+    "dotenv": "catalog:",
+    "typescript": "catalog:"
+  }
+}
