@@ -23,6 +23,19 @@
 - **Testing**: All features require unit tests, use existing test framework per package
 - **Components**: Build in `@plane/ui` with Storybook for isolated development
 
+## Frontend tests (Vitest)
+
+Frontend apps and shared packages use Vitest + Testing Library via the shared presets in `packages/vitest-config`.
+
+- Run everything: `pnpm test` (Turbo, builds upstream packages first); coverage: `pnpm test:coverage`
+- Single package/app: `pnpm --filter=@plane/utils test` (or `test:watch`, `test:coverage`)
+- Only affected packages (what CI runs): `pnpm turbo run test:coverage --affected`
+- File naming: co-located `src/**/*.test.ts(x)` for packages, `tests/**/*.test.ts(x)` for apps
+- Environment: `@plane/vitest-config/node` for pure logic, `@plane/vitest-config/react` (jsdom + jest-dom matchers) for hooks/components
+- Every test file must start with the AGPL copyright header used across the repo
+- Mocking: prefer `vi.mock`/`vi.spyOn` on the axios-based service classes; do not add HTTP interception libraries without discussion
+- Coverage thresholds live in each package's `vitest.config.ts` (`coverage.thresholds`), set from measured baselines; raise them as coverage grows, never lower
+
 ## Backend tests (Docker)
 
 The Django/pytest suite for `apps/api` runs in an isolated stack defined by `docker-compose-test.yml` at the repo root.
