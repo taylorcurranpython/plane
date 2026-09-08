@@ -86,6 +86,12 @@
     "test": {
       "dependsOn": ["^build"],
       "outputs": []
+    },
+    "test:e2e": {
+      "cache": false,
+      "dependsOn": ["web#build"],
+      "env": ["CI", "PLAYWRIGHT_*", "E2E_*"],
+      "outputs": []
     }
   }
 }

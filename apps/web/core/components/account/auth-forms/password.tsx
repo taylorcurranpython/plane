@@ -104,11 +104,11 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
 
   const isButtonDisabled = useMemo(
     () =>
-      !isSubmitting &&
-      !!passwordFormData.password &&
-      (mode === EAuthModes.SIGN_UP ? passwordFormData.password === passwordFormData.confirm_password : true)
-        ? false
-        : true,
+      !(
+        !isSubmitting &&
+        !!passwordFormData.password &&
+        (mode === EAuthModes.SIGN_UP ? passwordFormData.password === passwordFormData.confirm_password : true)
+      ),
     [isSubmitting, mode, passwordFormData.confirm_password, passwordFormData.password]
   );
 
@@ -213,7 +213,9 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
               onFocus={() => setIsPasswordInputFocused(true)}
               onBlur={() => setIsPasswordInputFocused(false)}
               autoComplete="off"
+              // oxlint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
+              data-testid="auth-password-input"
             />
             <button
               type="button"
@@ -250,6 +252,7 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
                 onFocus={() => setIsRetryPasswordInputFocused(true)}
                 onBlur={() => setIsRetryPasswordInputFocused(false)}
                 autoComplete="off"
+                data-testid="auth-confirm-password-input"
               />
               <button
                 type="button"
@@ -279,7 +282,14 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
         <div className="space-y-2.5">
           {mode === EAuthModes.SIGN_IN ? (
             <>
-              <Button type="submit" variant="primary" className="w-full" size="xl" disabled={isButtonDisabled}>
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full"
+                size="xl"
+                disabled={isButtonDisabled}
+                data-testid="auth-sign-in-button"
+              >
                 {isSubmitting ? (
                   <Spinner height="20px" width="20px" />
                 ) : isSMTPConfigured ? (
@@ -301,7 +311,14 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
               )}
             </>
           ) : (
-            <Button type="submit" variant="primary" className="w-full" size="xl" disabled={isButtonDisabled}>
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+              size="xl"
+              disabled={isButtonDisabled}
+              data-testid="auth-sign-up-button"
+            >
               {isSubmitting ? <Spinner height="20px" width="20px" /> : "Create account"}
             </Button>
           )}

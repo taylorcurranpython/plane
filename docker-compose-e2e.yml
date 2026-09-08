@@ -1,0 +1,165 @@
+# Docker Compose for the backend stack the Playwright E2E suite (./e2e) runs against.
+#
+# Prerequisite:
+#   ./setup.sh    # creates apps/api/.env (and the other env files) from .env.example
+#   # or just:  cp apps/api/.env.example apps/api/.env
+#
+# Usage:
+#   docker compose -f docker-compose-e2e.yml up -d --build --wait   # API on :8000
+#   pnpm test:e2e                                                   # builds + serves web on :3000, runs specs
+#   docker compose -f docker-compose-e2e.yml down -v
+#
+# Notes:
+# - The API container runs migrations, registers + configures the instance, seeds an
+#   onboarded user / workspace / instance admin (e2e/fixtures/seed.py), then serves on :8000.
+# - WEB_URL points at the Playwright web server so post-login redirects land on the web app.
+# - Data dirs are tmpfs so every run begins from a clean state.
+# - E2E_* credentials come from the shell, then e2e/.env (optional), then built-in defaults --
+#   the same order Playwright uses -- so the seed and the specs always agree (see e2e/.env.example).
+
+services:
+  e2e-db:
+    image: postgres:15.7-alpine
+    networks:
+      - e2e_env
+    env_file:
+      - ./apps/api/.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-plane}
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-plane} -d ${POSTGRES_DB:-plane}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  e2e-redis:
+    image: valkey/valkey:7.2.11-alpine
+    networks:
+      - e2e_env
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  e2e-mq:
+    image: rabbitmq:3.13.6-management-alpine
+    networks:
+      - e2e_env
+    env_file:
+      - ./apps/api/.env
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-plane}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-plane}
+    tmpfs:
+      - /var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  e2e-minio:
+    image: minio/minio
+    networks:
+      - e2e_env
+    env_file:
+      - ./apps/api/.env
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-access-key}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-secret-key}
+    entrypoint: >
+      /bin/sh -c "
+      mkdir -p /export/${AWS_S3_BUCKET_NAME:-uploads} &&
+      minio server /export --console-address ':9090' &
+      sleep 3 &&
+      mc alias set local http://localhost:9000 ${AWS_ACCESS_KEY_ID:-access-key} ${AWS_SECRET_ACCESS_KEY:-secret-key} &&
+      mc mb local/${AWS_S3_BUCKET_NAME:-uploads} -p || true &&
+      tail -f /dev/null
+      "
+    tmpfs:
+      - /export
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  e2e-api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.dev
+      args:
+        DOCKER_BUILDKIT: 1
+    networks:
+      - e2e_env
+    env_file:
+      - ./apps/api/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: plane.settings.local
+      DEBUG: 1
+      # configure_instance refuses to run without one; throwaway value for the test stack only.
+      SECRET_KEY: ${SECRET_KEY:-e2e-throwaway-secret-key-not-for-real-deployments}
+      POSTGRES_HOST: e2e-db
+      DATABASE_URL: postgresql://${POSTGRES_USER:-plane}:${POSTGRES_PASSWORD:-plane}@e2e-db:5432/${POSTGRES_DB:-plane}
+      REDIS_HOST: e2e-redis
+      REDIS_URL: redis://e2e-redis:6379/
+      RABBITMQ_HOST: e2e-mq
+      AWS_S3_ENDPOINT_URL: http://e2e-minio:9000
+      USE_MINIO: 1
+      WEB_URL: ${PLAYWRIGHT_BASE_URL:-http://localhost:3000}
+      CORS_ALLOWED_ORIGINS: ${PLAYWRIGHT_BASE_URL:-http://localhost:3000}
+      # Default is 10/minute per IP; the auth specs (plus retries / extra browsers) exceed that.
+      AUTHENTICATION_RATE_LIMIT: ${AUTHENTICATION_RATE_LIMIT:-1000/minute}
+      # Passed through from the shell only when set there; seed.py fills the rest from /e2e/.env.
+      E2E_USER_EMAIL:
+      E2E_USER_PASSWORD:
+      E2E_WORKSPACE_SLUG:
+      E2E_WORKSPACE_NAME:
+    ports:
+      - "${E2E_API_PORT:-8000}:8000"
+    volumes:
+      - ./apps/api:/code
+      - ./e2e:/e2e:ro
+    working_dir: /code
+    depends_on:
+      e2e-db:
+        condition: service_healthy
+      e2e-redis:
+        condition: service_healthy
+      e2e-mq:
+        condition: service_healthy
+      e2e-minio:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        python manage.py wait_for_db
+        python manage.py migrate --noinput
+        python manage.py register_instance e2e-$$(hostname)
+        python manage.py configure_instance
+        python manage.py create_bucket
+        python manage.py clear_cache
+        python manage.py shell < /e2e/fixtures/seed.py
+        mkdir -p plane/static-assets/collected-static
+        exec python manage.py runserver 0.0.0.0:8000
+    healthcheck:
+      # 127.0.0.1, not localhost: that resolves to ::1 first and runserver is IPv4 only.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8000/ >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+networks:
+  e2e_env:
+    driver: bridge
