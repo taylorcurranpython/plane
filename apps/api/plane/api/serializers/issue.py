@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # See the LICENSE file for details.
 
+# Python imports
+import re
+
 # Django imports
 from django.utils import timezone
 from lxml import html
@@ -41,6 +44,8 @@ from .user import UserLiteSerializer
 # Django imports
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+
+HEX_COLOR_PATTERN = re.compile(r"^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
 
 class IssueSerializer(BaseSerializer):
@@ -377,6 +382,20 @@ class LabelCreateUpdateSerializer(BaseSerializer):
             "updated_at",
             "deleted_at",
         ]
+
+    def validate_color(self, value):
+        if not value:
+            return value
+
+        match = HEX_COLOR_PATTERN.match(value.strip())
+        if not match:
+            raise serializers.ValidationError("Color must be a 3 or 6 digit hex value, e.g. #ff0000.")
+
+        digits = match.group(1)
+        if len(digits) == 3:
+            digits = "".join(ch * 2 for ch in digits)
+
+        return f"#{digits.lower()}"
 
 
 class LabelSerializer(BaseSerializer):
