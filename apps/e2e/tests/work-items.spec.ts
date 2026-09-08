@@ -1,6 +1,13 @@
+/**
+ * Copyright (c) 2023-present Plane Software, Inc. and contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ * See the LICENSE file for details.
+ */
+
 import { test, expect } from "../support/fixtures";
 import { ProjectPage } from "../support/pages/project.page";
 import { WorkspacePage } from "../support/pages/workspace.page";
+import { AUTH_STATE_PATH } from "../support/env";
 import { readSession, uniqueSuffix } from "../support/session";
 
 test.describe("work items", () => {
@@ -11,11 +18,15 @@ test.describe("work items", () => {
     // One dedicated project for this file so the list assertions are not
     // affected by the demo project's seeded work items.
     const session = readSession();
-    const page = await browser.newPage();
-    const workspace = new WorkspacePage(page, session.workspaceSlug);
-    await workspace.gotoProjects();
-    ({ identifier, projectId } = await workspace.createProject(`E2E Work Items ${uniqueSuffix()}`));
-    await page.close();
+    const context = await browser.newContext({ storageState: AUTH_STATE_PATH });
+    try {
+      const page = await context.newPage();
+      const workspace = new WorkspacePage(page, session.workspaceSlug);
+      await workspace.gotoProjects();
+      ({ identifier, projectId } = await workspace.createProject(`E2E Work Items ${uniqueSuffix()}`));
+    } finally {
+      await context.close();
+    }
   });
 
   test("creates a work item and shows it in the list", async ({ page, session }) => {

@@ -28,9 +28,9 @@ pnpm --filter=@plane/e2e test:report   # open the last HTML report
 
 ## Configuration
 
-| Variable                                 | Default                        | Purpose                                                          |
-| ---------------------------------------- | ------------------------------ | ---------------------------------------------------------------- |
-| `E2E_WEB_URL`                            | `http://localhost:3000`        | Web app under test                                               |
-| `E2E_API_URL`                            | `http://localhost:8000`        | API used for the instance setup check                            |
-| `E2E_USER_PASSWORD`                      | built-in dev password          | Password for the generated test user                             |
-| `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` | `admin@plane.local` / built-in | Instance admin created when the instance has not been set up yet |
+| Variable                                                   | Default                            | Purpose                                                          |
+| ---------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------- |
+| `E2E_WEB_URL`                                              | `http://localhost:3000`            | Web app under test                                               |
+| `E2E_API_URL`                                              | `http://localhost:8000`            | API used for the instance setup check                            |
+| `E2E_USER_PASSWORD`                                        | built-in dev password              | Password for the generated test user                             |
+| `E2E_INSTANCE_ADMIN_EMAIL` / `E2E_INSTANCE_ADMIN_PASSWORD` | `e2e-admin@plane.local` / built-in | Instance admin created when the instance has not been set up yet |
