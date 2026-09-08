@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Observabilitate",
+    "page_label": "{workspace} - Observabilitate",
+    "description": "Utilizare, stare și activitate în acest spațiu de lucru.",
+    "refresh": "Reîncarcă",
+    "error": "Metricile spațiului de lucru nu au putut fi încărcate.",
+    "totals": "Totaluri",
+    "projects": "Proiecte",
+    "members": "Membri",
+    "work_items": "Activități",
+    "cycles": "Cicluri",
+    "modules": "Module",
+    "pages": "Pagini",
+    "overdue": "Restante",
+    "overdue_hint": "Activități deschise cu termenul depășit",
+    "created_last_7_days": "Create (7 zile)",
+    "completed_last_7_days": "Finalizate (7 zile)",
+    "by_state": "Activități după stare",
+    "by_priority": "Activități după prioritate",
+    "activity": "Activitatea activităților",
+    "activity_summary": "{count} evenimente în {days} zile",
+    "total": "{count} în total",
+    "footer": "Generat la {date} · totalurile exclud activitățile arhivate, ciornele și cele din Intake."
+  },
   "workspace_analytics": {
     "label": "Statistici",
     "page_label": "{workspace} - Statistici",

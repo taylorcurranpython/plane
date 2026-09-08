@@ -37,7 +37,7 @@ export function ActivityChart(props: TActivityChartProps) {
             <div
               title={`${point.date}: ${point.count}`}
               className="w-full rounded-t-sm bg-accent-primary/70 transition-colors group-hover:bg-accent-primary"
-              style={{ height: `${Math.max(2, (point.count / max) * 100)}%` }}
+              style={{ height: point.count === 0 ? 0 : `${Math.max(2, (point.count / max) * 100)}%` }}
             />
           </div>
         ))}

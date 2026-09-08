@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 
-from plane.db.models import Issue, Project, ProjectMember, State, User, WorkspaceMember
+from plane.db.models import Issue, IssueActivity, Project, ProjectMember, State, User, WorkspaceMember
 from plane.license.models import Instance, InstanceAdmin
 
 
@@ -35,6 +35,26 @@ def project_with_issues(db, workspace, create_user):
         completed_at=timezone.now(),
     )
     return project
+
+
+@pytest.fixture
+def excluded_records(db, workspace, create_user, project_with_issues):
+    """Records that must not be counted anywhere: archived/draft/triage issues, activity on them, and a
+    soft-deleted membership."""
+    project = project_with_issues
+    started = State.objects.get(project=project, group="started")
+    triage = State.all_objects.create(name="Triage", group="triage", color="#000", project=project, workspace=workspace)
+    archived = Issue.objects.create(
+        project=project, workspace=workspace, name="Archived", state=started, archived_at=timezone.now()
+    )
+    draft = Issue.objects.create(project=project, workspace=workspace, name="Draft", state=started, is_draft=True)
+    intake = Issue.objects.create(project=project, workspace=workspace, name="Intake", state=triage)
+    for issue in (archived, draft, intake):
+        IssueActivity.objects.create(issue=issue, project=project, workspace=workspace, actor=create_user)
+
+    former = User.objects.create(email="former@plane.so", username="former")
+    WorkspaceMember.objects.create(workspace=workspace, member=former, role=15, deleted_at=timezone.now())
+    return {"archived": archived, "draft": draft, "intake": intake, "former_member": former}
 
 
 @pytest.fixture
@@ -69,6 +89,21 @@ class TestWorkspaceObservabilityEndpoint:
         assert response.data["issues"]["completed_last_7_days"] == 1
         assert response.data["issues"]["overdue"] == 0
         assert len(response.data["activity"]) == 14
+
+    @pytest.mark.django_db
+    def test_excludes_archived_draft_intake_and_deleted(
+        self, session_client, create_user, workspace, project_with_issues, excluded_records
+    ):
+        session_client.force_authenticate(user=create_user)
+        url = reverse("workspace-observability", kwargs={"slug": workspace.slug})
+
+        response = session_client.get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["totals"]["issues"] == 3
+        assert response.data["totals"]["members"] == 1
+        assert response.data["issues"]["by_state_group"]["started"] == 2
+        assert sum(point["count"] for point in response.data["activity"]) == 0
 
     @pytest.mark.django_db
     def test_guest_is_forbidden(self, session_client, workspace):
@@ -108,6 +143,21 @@ class TestInstanceObservabilityEndpoint:
         assert response.data["top_workspaces"][0]["issues"] == 3
         assert response.data["top_workspaces"][0]["members"] == 1
         assert len(response.data["activity"]) == 14
+
+    @pytest.mark.django_db
+    def test_top_workspaces_and_activity_exclude_ineligible_records(
+        self, session_client, create_user, instance, workspace, project_with_issues, excluded_records
+    ):
+        InstanceAdmin.objects.create(instance=instance, user=create_user, role=20)
+        session_client.force_authenticate(user=create_user)
+
+        response = session_client.get(reverse("instance-observability"))
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["totals"]["issues"] == 3
+        assert response.data["top_workspaces"][0]["issues"] == 3
+        assert response.data["top_workspaces"][0]["members"] == 1
+        assert sum(point["count"] for point in response.data["activity"]) == 0
 
     @pytest.mark.django_db
     def test_non_admin_is_forbidden(self, session_client, create_user, instance):

@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "オブザーバビリティ",
+    "page_label": "{workspace} - オブザーバビリティ",
+    "description": "このワークスペースの利用状況、状態、アクティビティ。",
+    "refresh": "更新",
+    "error": "ワークスペースのメトリクスを読み込めませんでした。",
+    "totals": "合計",
+    "projects": "プロジェクト",
+    "members": "メンバー",
+    "work_items": "作業項目",
+    "cycles": "サイクル",
+    "modules": "モジュール",
+    "pages": "ページ",
+    "overdue": "期限超過",
+    "overdue_hint": "期限を過ぎた未完了の作業項目",
+    "created_last_7_days": "作成（7日間）",
+    "completed_last_7_days": "完了（7日間）",
+    "by_state": "状態別の作業項目",
+    "by_priority": "優先度別の作業項目",
+    "activity": "作業項目のアクティビティ",
+    "activity_summary": "{days}日間で{count}件のイベント",
+    "total": "合計 {count}",
+    "footer": "{date} に生成 · アーカイブ済み、下書き、Intake の作業項目は集計に含まれません。"
+  },
   "workspace_analytics": {
     "label": "アナリティクス",
     "page_label": "{workspace} - アナリティクス",

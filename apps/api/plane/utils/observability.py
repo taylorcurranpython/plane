@@ -52,6 +52,22 @@ def _issues_by_priority(issues: QuerySet) -> dict:
     return counts
 
 
+def _eligible_issue_q(prefix: str) -> Q:
+    """Mirror Issue.issue_objects for a related lookup, e.g. prefix="workspace_issue__"."""
+    return Q(
+        **{
+            f"{prefix}deleted_at__isnull": True,
+            f"{prefix}archived_at__isnull": True,
+            f"{prefix}is_draft": False,
+            f"{prefix}project__archived_at__isnull": True,
+        }
+    ) & ~Q(**{f"{prefix}state__group": StateGroup.TRIAGE.value})
+
+
+def _eligible_issue_activities(**filters) -> QuerySet:
+    return IssueActivity.objects.filter(issue_id__in=Issue.issue_objects.filter(**filters).values("id"))
+
+
 def _daily_activity(activities: QuerySet, days: int = ACTIVITY_WINDOW_DAYS) -> list:
     today = timezone.now().date()
     start = today - timedelta(days=days - 1)
@@ -104,7 +120,7 @@ def get_workspace_observability(workspace: Workspace) -> dict:
                 completed_at__gte=week_ago, state__group=StateGroup.COMPLETED.value
             ).count(),
         },
-        "activity": _daily_activity(IssueActivity.objects.filter(workspace_id=workspace.id)),
+        "activity": _daily_activity(_eligible_issue_activities(workspace_id=workspace.id)),
         "generated_at": now.isoformat(),
     }
 
@@ -155,18 +171,22 @@ def get_instance_observability(instance) -> dict:
             for row in Workspace.objects.annotate(
                 issue_count=Count(
                     "workspace_issue",
-                    filter=Q(workspace_issue__deleted_at__isnull=True),
+                    filter=_eligible_issue_q("workspace_issue__"),
                     distinct=True,
                 ),
                 member_count=Count(
                     "workspace_member",
-                    filter=Q(workspace_member__is_active=True, workspace_member__member__is_bot=False),
+                    filter=Q(
+                        workspace_member__deleted_at__isnull=True,
+                        workspace_member__is_active=True,
+                        workspace_member__member__is_bot=False,
+                    ),
                     distinct=True,
                 ),
             )
             .order_by("-issue_count")
             .values("id", "name", "slug", "issue_count", "member_count")[:5]
         ],
-        "activity": _daily_activity(IssueActivity.objects.all()),
+        "activity": _daily_activity(_eligible_issue_activities()),
         "generated_at": now.isoformat(),
     }

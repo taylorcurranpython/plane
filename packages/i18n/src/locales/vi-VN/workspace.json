@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Khả năng quan sát",
+    "page_label": "{workspace} - Khả năng quan sát",
+    "description": "Mức sử dụng, tình trạng và hoạt động trong không gian làm việc này.",
+    "refresh": "Làm mới",
+    "error": "Không thể tải số liệu của không gian làm việc.",
+    "totals": "Tổng số",
+    "projects": "Dự án",
+    "members": "Thành viên",
+    "work_items": "Mục công việc",
+    "cycles": "Chu kỳ",
+    "modules": "Mô-đun",
+    "pages": "Trang",
+    "overdue": "Quá hạn",
+    "overdue_hint": "Các mục công việc đang mở đã quá hạn",
+    "created_last_7_days": "Đã tạo (7 ngày)",
+    "completed_last_7_days": "Đã hoàn thành (7 ngày)",
+    "by_state": "Mục công việc theo trạng thái",
+    "by_priority": "Mục công việc theo mức ưu tiên",
+    "activity": "Hoạt động của mục công việc",
+    "activity_summary": "{count} sự kiện trong {days} ngày",
+    "total": "tổng {count}",
+    "footer": "Được tạo {date} · số liệu không bao gồm các mục công việc đã lưu trữ, bản nháp và Intake."
+  },
   "workspace_analytics": {
     "label": "Phân tích",
     "page_label": "{workspace} - Phân tích",

@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Pozorovatelnost",
+    "page_label": "{workspace} - Pozorovatelnost",
+    "description": "Využití, stav a aktivita v tomto pracovním prostoru.",
+    "refresh": "Obnovit",
+    "error": "Metriky pracovního prostoru se nepodařilo načíst.",
+    "totals": "Souhrny",
+    "projects": "Projekty",
+    "members": "Členové",
+    "work_items": "Pracovní položky",
+    "cycles": "Cykly",
+    "modules": "Moduly",
+    "pages": "Stránky",
+    "overdue": "Po termínu",
+    "overdue_hint": "Otevřené pracovní položky po termínu dokončení",
+    "created_last_7_days": "Vytvořeno (7 dní)",
+    "completed_last_7_days": "Dokončeno (7 dní)",
+    "by_state": "Pracovní položky podle stavu",
+    "by_priority": "Pracovní položky podle priority",
+    "activity": "Aktivita pracovních položek",
+    "activity_summary": "{count} událostí za {days} dní",
+    "total": "celkem {count}",
+    "footer": "Vygenerováno {date} · počty nezahrnují archivované pracovní položky, koncepty a položky z Intake."
+  },
   "workspace_analytics": {
     "label": "Analytika",
     "page_label": "{workspace} - Analytika",

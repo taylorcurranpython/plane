@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "可觀測性",
+    "page_label": "{workspace} - 可觀測性",
+    "description": "此工作區的使用情況、健康狀態與活動。",
+    "refresh": "重新整理",
+    "error": "無法載入工作區指標。",
+    "totals": "總計",
+    "projects": "專案",
+    "members": "成員",
+    "work_items": "工作事項",
+    "cycles": "週期",
+    "modules": "模組",
+    "pages": "頁面",
+    "overdue": "已逾期",
+    "overdue_hint": "已超過截止日期的未完成工作事項",
+    "created_last_7_days": "已建立（7 天）",
+    "completed_last_7_days": "已完成（7 天）",
+    "by_state": "依狀態劃分的工作事項",
+    "by_priority": "依優先順序劃分的工作事項",
+    "activity": "工作事項活動",
+    "activity_summary": "{days} 天內 {count} 個事件",
+    "total": "共 {count}",
+    "footer": "產生於 {date} · 統計不包含已封存、草稿及 Intake 工作事項。"
+  },
   "workspace_analytics": {
     "label": "分析",
     "page_label": "{workspace} - 分析",

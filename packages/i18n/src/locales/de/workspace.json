@@ -65,6 +65,30 @@
       }
     }
   },
+  "workspace_observability": {
+    "label": "Observability",
+    "page_label": "{workspace} - Observability",
+    "description": "Nutzung, Zustand und Aktivität in diesem Arbeitsbereich.",
+    "refresh": "Aktualisieren",
+    "error": "Die Metriken des Arbeitsbereichs konnten nicht geladen werden.",
+    "totals": "Gesamtwerte",
+    "projects": "Projekte",
+    "members": "Mitglieder",
+    "work_items": "Arbeitselemente",
+    "cycles": "Zyklen",
+    "modules": "Module",
+    "pages": "Seiten",
+    "overdue": "Überfällig",
+    "overdue_hint": "Offene Arbeitselemente, deren Fälligkeitsdatum überschritten ist",
+    "created_last_7_days": "Erstellt (7 Tage)",
+    "completed_last_7_days": "Abgeschlossen (7 Tage)",
+    "by_state": "Arbeitselemente nach Status",
+    "by_priority": "Arbeitselemente nach Priorität",
+    "activity": "Aktivität der Arbeitselemente",
+    "activity_summary": "{count} Ereignisse in {days} Tagen",
+    "total": "{count} gesamt",
+    "footer": "Erstellt am {date} · Archivierte Arbeitselemente, Entwürfe und Intake-Elemente sind nicht enthalten."
+  },
   "workspace_analytics": {
     "label": "Analysen",
     "page_label": "{workspace} - Analysen",
