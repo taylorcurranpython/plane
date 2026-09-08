@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2023-present Plane Software, Inc. and contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ * See the LICENSE file for details.
+ */
+
+/**
  * Thin wrapper around the Django API used by the E2E suite.
  *
  * The test user / workspace / instance admin are created by the seed script

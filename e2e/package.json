@@ -6,7 +6,6 @@
   "type": "module",
   "scripts": {
     "test": "playwright test",
-    "test:e2e": "PLAYWRIGHT_WEB_SERVER_COMMAND='pnpm --filter=web start' playwright test",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "install:browsers": "playwright install --with-deps chromium",

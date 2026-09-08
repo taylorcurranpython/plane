@@ -12,15 +12,14 @@ registered via `python manage.py register_instance <machine-signature>`):
 
     python manage.py shell < /path/to/e2e/fixtures/seed.py
 
-Idempotent: re-running reuses the existing rows. Values can be overridden via the
-E2E_* environment variables below and must match e2e/.env.
+Idempotent: re-running reuses the existing rows and resets the user's password.
+Values can be overridden via the E2E_* environment variables below (e2e/.env).
 """
 
 import os
 import uuid
 
 from django.contrib.auth.hashers import make_password
-
 from plane.db.models import Profile, User, Workspace, WorkspaceMember
 from plane.license.models import Instance, InstanceAdmin
 
@@ -35,13 +34,15 @@ user, _ = User.objects.get_or_create(
     email=EMAIL,
     defaults={
         "username": uuid.uuid4().hex,
-        "password": make_password(PASSWORD),
         "first_name": "E2E",
         "last_name": "Runner",
-        "is_active": True,
-        "is_password_autoset": False,
     },
 )
+# Always reset credentials/state so a rerun against a long-lived dev DB matches e2e/.env.
+user.password = make_password(PASSWORD)
+user.is_active = True
+user.is_password_autoset = False
+user.save(update_fields=["password", "is_active", "is_password_autoset"])
 
 workspace, _ = Workspace.objects.get_or_create(
     slug=WORKSPACE_SLUG,
@@ -66,8 +67,12 @@ profile.save()
 
 instance = Instance.objects.first()
 if instance is None:
-    raise SystemExit("No Instance row found; run `python manage.py register_instance <signature>` first.")
-InstanceAdmin.objects.get_or_create(user=user, instance=instance, defaults={"role": WORKSPACE_ADMIN_ROLE})
+    raise SystemExit(
+        "No Instance row found; run `python manage.py register_instance <signature>` first."
+    )
+InstanceAdmin.objects.get_or_create(
+    user=user, instance=instance, defaults={"role": WORKSPACE_ADMIN_ROLE}
+)
 if not instance.is_setup_done:
     instance.is_setup_done = True
     instance.instance_name = instance.instance_name or "Plane E2E"

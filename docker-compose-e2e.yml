@@ -14,12 +14,8 @@
 #   onboarded user / workspace / instance admin (e2e/fixtures/seed.py), then serves on :8000.
 # - WEB_URL points at the Playwright web server so post-login redirects land on the web app.
 # - Data dirs are tmpfs so every run begins from a clean state.
-
-x-e2e-fixtures: &e2e-fixtures
-  E2E_USER_EMAIL: ${E2E_USER_EMAIL:-e2e@plane.local}
-  E2E_USER_PASSWORD: ${E2E_USER_PASSWORD:-e2e-password-1234!}
-  E2E_WORKSPACE_SLUG: ${E2E_WORKSPACE_SLUG:-e2e}
-  E2E_WORKSPACE_NAME: ${E2E_WORKSPACE_NAME:-E2E}
+# - E2E_* credentials are read from e2e/.env (optional) so the seed and Playwright share one
+#   source; without it both fall back to the same defaults (see e2e/.env.example).
 
 services:
   e2e-db:
@@ -106,8 +102,9 @@ services:
       - e2e_env
     env_file:
       - ./apps/api/.env
+      - path: ./e2e/.env
+        required: false
     environment:
-      <<: *e2e-fixtures
       DJANGO_SETTINGS_MODULE: plane.settings.local
       DEBUG: 1
       # configure_instance refuses to run without one; throwaway value for the test stack only.

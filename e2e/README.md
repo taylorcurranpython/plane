@@ -33,7 +33,9 @@ refactoring those components — Playwright depends on them.
 
 2. Start the backend stack. `docker-compose-e2e.yml` boots Postgres/Valkey/RabbitMQ/MinIO and an
    API container that migrates, registers + configures the instance and runs `e2e/fixtures/seed.py`
-   (creating `e2e@plane.local` / `e2e-password-1234!` with workspace `e2e`), then serves on `:8000`:
+   (creating `e2e@plane.local` / `e2e-password-1234!` with workspace `e2e`), then serves on `:8000`.
+   The API container also loads `e2e/.env` (if present), so any `E2E_*` overrides you set there are
+   used by both the seed and Playwright:
 
    ```sh
    docker compose -f docker-compose-e2e.yml up -d --build --wait
@@ -41,7 +43,7 @@ refactoring those components — Playwright depends on them.
 
    To run against the regular dev stack instead, start `docker-compose-local.yml`, then seed with
    `docker compose -f docker-compose-local.yml exec -T api python manage.py shell < e2e/fixtures/seed.py`
-   and make sure `WEB_URL` in `apps/api/.env` points at `http://localhost:3000`.
+   (re-running it resets the E2E user's password to the configured value) and make sure `WEB_URL` in `apps/api/.env` points at `http://localhost:3000`.
 
 3. Run the tests. Playwright starts `pnpm --filter=web preview` (production build served on `:3000`)
    unless something is already listening there:
