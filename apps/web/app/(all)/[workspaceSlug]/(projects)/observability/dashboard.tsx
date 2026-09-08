@@ -79,7 +79,7 @@ function SectionHeading({ title, description }: { title: string; description: st
 function ServiceHealthSection() {
   return (
     <section className="space-y-3">
-      <SectionHeading title="System health" description="Live status of the services backing this workspace." />
+      <SectionHeading title="System health" description="Sample status of the services backing this workspace." />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {MOCK_SERVICES.map((service) => {
           const style = STATUS_STYLES[service.status];
@@ -122,7 +122,7 @@ function ServiceHealthSection() {
 function UsageMetricsSection() {
   return (
     <section className="space-y-3">
-      <SectionHeading title="Usage" description="Activity in this workspace over the last 30 days." />
+      <SectionHeading title="Usage" description="Sample activity for this workspace over the last 30 days." />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {MOCK_USAGE_METRICS.map((metric) => (
           <div key={metric.label} className="space-y-2 rounded-lg border border-subtle bg-surface-1 p-4">
@@ -142,7 +142,10 @@ function UsageMetricsSection() {
 function TelemetrySection() {
   return (
     <section className="space-y-3">
-      <SectionHeading title="Telemetry" description="Request throughput, reliability and latency over the last hour." />
+      <SectionHeading
+        title="Telemetry"
+        description="Sample request throughput, reliability and latency over the last hour."
+      />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {MOCK_TELEMETRY_METRICS.map((metric) => {
           const lowerIsBetter = metric.label !== "Request rate";
@@ -202,6 +205,10 @@ function TelemetrySection() {
 export function ObservabilityDashboard() {
   return (
     <div className="space-y-8">
+      <div className="rounded-md border border-subtle bg-surface-2 px-4 py-2.5 text-body-xs-regular text-secondary">
+        This dashboard shows sample data. Health, usage, telemetry and recent events are not yet connected to this
+        workspace.
+      </div>
       <ServiceHealthSection />
       <UsageMetricsSection />
       <TelemetrySection />
